@@ -37,15 +37,6 @@ class SpecialitySDJpaServiceTest {
     }
 
     @Test
-    void testDeleteByObject() {
-        Speciality speciality = new Speciality();
-
-        service.delete(speciality);
-
-        verify(specialtyRepository).delete(any(Speciality.class));
-    }
-
-    @Test
     void findByIdTest() {
         Speciality speciality = new Speciality();
 
@@ -57,6 +48,15 @@ class SpecialitySDJpaServiceTest {
 
         verify(specialtyRepository).findById(anyLong());
 
+    }
+
+    @Test
+    void testDeleteByObject() {
+        Speciality speciality = new Speciality();
+
+        service.delete(speciality);
+
+        verify(specialtyRepository).delete(any(Speciality.class));
     }
 
     @Test
