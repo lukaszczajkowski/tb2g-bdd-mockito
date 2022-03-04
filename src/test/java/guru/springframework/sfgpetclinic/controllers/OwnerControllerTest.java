@@ -5,13 +5,17 @@ import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -26,6 +30,9 @@ class OwnerControllerTest {
 
     @Mock
     BindingResult bindingResult;
+
+    @Captor
+    ArgumentCaptor<String> stringArgumentCaptor;
 
     @InjectMocks
     OwnerController controller;
@@ -56,5 +63,34 @@ class OwnerControllerTest {
         // then
         then(ownerService).should().save(any());
         assertThat(actual).isEqualToIgnoringCase(REDIRECT_OWNERS_5);
+    }
+
+    @Test
+    void processFindFormWildcardString() {
+        // given
+        Owner owner = new Owner(5L, "Joe", "Buck");
+        List<Owner> ownerList = new ArrayList<>();
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        given(ownerService.findAllByLastNameLike(captor.capture())).willReturn(ownerList);
+
+        // when
+        String viewName = controller.processFindForm(owner, bindingResult, null);
+
+        // then
+        assertThat("%Buck%").isEqualToIgnoringCase(captor.getValue());
+    }
+
+    @Test
+    void processFindFormWildcardStringAnnotation() {
+        // given
+        Owner owner = new Owner(5L, "Joe", "Buck");
+        List<Owner> ownerList = new ArrayList<>();
+        given(ownerService.findAllByLastNameLike(stringArgumentCaptor.capture())).willReturn(ownerList);
+
+        // when
+        String viewName = controller.processFindForm(owner, bindingResult, null);
+
+        // then
+        assertThat("%Buck%").isEqualToIgnoringCase(stringArgumentCaptor.getValue());
     }
 }
